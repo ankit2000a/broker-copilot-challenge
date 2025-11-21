@@ -1,69 +1,140 @@
-# Broker Copilot: Renewal Orchestration Assistant
-## Round 1 Proposal - Techfest 2025-26
+Broker Copilot: Renewal Orchestration Assistant
 
-### 1. Problem Understanding
-Insurance brokers face a "fragmented data" crisis during renewals. Key information is scattered across CRMs, disparate emails, calendar invites, and static policy documents. 
-**The Core Pain Point:** Brokers spend 60-70% of their time manually hunting for data across these silos just to prepare for a renewal, leading to:
-* **Missed Opportunities:** High-priority renewals are lost in the noise.
-* **Slow Turnaround:** Preparation takes days instead of minutes.
-* **Generic Outreach:** Lack of context leads to impersonal client communication.
+Round 1 Proposal - Techfest 2025-26
 
-**Our Solution:** A "Connector-First" Broker Copilot that acts as an intelligent orchestration layer. Instead of creating a new database, it pulls live signals from existing tools (CRM, Outlook, Teams) to generate Just-in-Time (JIT) insights, prioritizing renewals dynamically and drafting context-aware outreach instantly.
+1. Problem Understanding & Solution
 
----
+The Challenge: Insurance brokers face a "fragmented data" crisis. Critical renewal information is trapped in silos—CRM records, scattered email threads, calendar invites, and Teams chats.
+The Pain Point: Brokers spend 60-70% of their time manually hunting for data just to prepare for a renewal. This leads to:
 
-### 2. Proposed Architecture & Workflow
-Our system utilizes a **"Zero-Persistence" Passthrough Architecture**. Data is fetched, processed, and presented in real-time without being stored in a secondary database.
+Missed Opportunities: High-priority renewals slip through cracks.
 
-**Data Flow:**
-1.  **Ingest (Connectors):** System wakes up on schedule or user request. Connectors fetch live metadata from:
-    * *CRM* (Policy expiration dates, premiums).
-    * *Mail-Miner* (Recent sentiment, negotiation threads).
-    * *Calendar* (Recent/Upcoming meetings).
-2.  **Synthesize (Orchestration Engine):**
-    * Data is normalized in memory.
-    * **Explainable Priority Score (EPS)** is calculated based on rules (Premium size + Time to expiry + Client Sentiment).
-3.  **Intelligence (LLM Layer):** * Structured prompts are built using the live JSON data.
-    * LLM generates a "Renewal Brief" and "Draft Email" using *In-Context Learning* (No RAG/Vector DB).
-4.  **Act (Presentation Layer):** Broker views the brief, edits the email, and triggers the send action via Outlook API.
+Slow Turnaround: Prep takes days instead of minutes.
 
-**Textual Diagram:**
-`[Sources: CRM / Outlook / Teams] <==> [Secure Connectors (OAuth)] <==> [Orchestration Engine (FastAPI)] <==> [LLM (Azure OpenAI)] ==> [Frontend Dashboard (React)]`
+Generic Outreach: Lack of context results in impersonal emails.
 
----
+Our Solution: A "Connector-First" Broker Copilot. Instead of creating a new database or ingesting documents, our system acts as an intelligent orchestration layer. It pulls live signals from existing tools (CRM, Outlook, Teams) to generate Just-in-Time (JIT) insights, prioritize renewals dynamically, and draft context-aware outreach instantly.
 
-### 3. Technology Stack
-* **Frontend:** React.js (Responsive dashboard for pipeline and briefs).
-* **Backend:** FastAPI (Python) - High-performance async handling for concurrent connector requests.
-* **LLM:** Azure OpenAI (GPT-4o mini) - For summarization and drafting.
-* **Connectors:** * *Microsoft Graph API* (Outlook, Teams, Calendar).
-    * *Salesforce/HubSpot API* (Simulated CRM).
-* **Auth:** Auth0 / OAuth 2.0 (Secure token management).
-* **Hosting:** Vercel (Frontend) + Render/Azure Functions (Backend).
+2. Proposed Architecture & Workflow
 
----
+We utilize a "Zero-Persistence" Passthrough Architecture. Data is fetched, processed in memory, and presented in real-time without being stored in a secondary database or vector store.
 
-### 4. Security & Data Privacy Strategy
-We strictly adhere to the **"No Ingestion"** policy:
-1.  **No Database Storage:** We do not use SQL/NoSQL to store client records. We only store IDs/links to the original source.
-2.  **Passthrough Processing:** Data is held in volatile memory (RAM) only for the duration of the session.
-3.  **Source of Truth:** All data displayed includes a direct hyperlink to the original record (e.g., "View in Salesforce"), ensuring traceability.
-4.  **Token Security:** OAuth access tokens are encrypted and managed via secure HttpOnly cookies, never exposed to the client side.
-5.  **No Vector DB:** We rely purely on live context injection, eliminating the risk of stale or hallucinated data from embeddings.
+System Diagram
 
----
+graph TD
+    subgraph "Data Sources (Live Connectors)"
+        A[CRM <br/>(Salesforce/HubSpot)] -->|Policy Data| D(Secure Connector Layer)
+        B[Email <br/>(Mail-Miner/Outlook)] -->|Sentiment & Threads| D
+        C[Calendar <br/>(Teams/Outlook)] -->|Meeting Notes| D
+    end
 
-### 5. Prototype Implementation Plan (Timeline)
-* **Nov 24 - Nov 30 (Connectors):** Build valid OAuth adapters for Microsoft Graph (Email/Calendar) and Mock CRM.
-* **Dec 1 - Dec 5 (Pipeline Logic):** Implement the "Explainable Priority Scoring" algorithm.
-* **Dec 6 - Dec 10 (LLM Integration):** Develop the prompt engineering pipeline for Brief Generation and Chat.
-* **Dec 11 - Dec 13 (Frontend):** Build the React dashboard and "One-Page Brief" view.
-* **Dec 14:** End-to-End testing and video recording.
-* **Dec 15:** **Round 2 Submission.**
+    subgraph "Broker Copilot Core (Zero-Persistence)"
+        D{OAuth 2.0 / Auth0} <-->|JSON Signals| E[Orchestration Engine <br/>(FastAPI)]
+        E -->|Context + Metadata| F[Prioritization Logic <br/>(EPS Algorithm)]
+        F -->|Structured Prompt| G[LLM Layer <br/>(Azure OpenAI)]
+    end
 
----
+    subgraph "Broker Experience"
+        G -->|Drafts & Briefs| H[Frontend Dashboard <br/>(React)]
+        H -->|User Action| I[Send Email / Update CRM]
+        I -.->|Write Back| A
+        I -.->|Write Back| B
+    end
 
-### 6. Unique Innovations
-1.  **Explainable Priority Score (EPS):** unlike black-box AI, our scoring is transparent. Brokers can click "Why High Priority?" to see the exact math (e.g., "+20 points for Premium > $100k", "+10 points for 'Urgent' sentiment in recent email").
-2.  **"Risk Radar" Sentiment Analysis:** The system analyzes the *tone* of the last 3 emails from the client. If the tone is "Frustrated," the renewal is automatically flagged as "At Risk" regardless of premium size.
-3.  **Connector-Backed "Fact Check":** Every sentence in the AI-generated brief will have a citation footnote like `[Source: Email from John, Nov 12]` that links to the actual item.
+    style D fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#bbf,stroke:#333,stroke-width:2px
+
+
+Workflow Steps:
+
+Ingest (Connectors): System authenticates via OAuth and fetches live metadata (Policy expiry, Email sentiment, Last meeting date).
+
+Synthesize (Orchestration): Data is normalized in RAM. The Explainable Priority Score (EPS) is calculated.
+
+Intelligence (LLM): Structured prompts are built using live JSON data. The LLM generates a "Renewal Brief" using In-Context Learning.
+
+Act (Presentation): Broker views the brief, edits the AI-drafted email, and sends it via the Outlook API.
+
+3. Technology Stack
+
+Frontend: React.js (Responsive dashboard for pipeline and briefs).
+
+Backend: FastAPI (Python) - High-performance async handling for concurrent connector requests.
+
+LLM: Azure OpenAI (GPT-4o mini) - Selected for low latency and high reasoning capability.
+
+Connectors:
+
+Microsoft Graph API (Outlook, Teams, Calendar).
+
+Mock Adapter (Simulating generic Broker CRM/Mail-Miner interaction).
+
+Auth: Auth0 / OAuth 2.0 (Secure token management).
+
+Hosting: Vercel (Frontend) + Render (Backend).
+
+4. Security & Data Privacy Strategy
+
+We strictly adhere to the "No Ingestion" policy to ensure enterprise-grade security:
+
+No Database Storage: We do not use SQL/NoSQL to store client records. We only store IDs/links to the original source.
+
+Passthrough Processing: Data is held in volatile memory (RAM) only for the duration of the session.
+
+Token Security: OAuth access tokens are encrypted and managed via secure HttpOnly cookies.
+
+No Vector DB/RAG: We rely purely on live context injection. This eliminates the risk of "stale data" and ensures privacy by design.
+
+5. Prototype Implementation Plan (Timeline)
+
+Nov 24 - Nov 30 (Connectors): Build valid OAuth adapters for Microsoft Graph and Mock CRM.
+
+Dec 1 - Dec 5 (Pipeline Logic): Implement the "Explainable Priority Scoring" algorithm.
+
+Dec 6 - Dec 10 (LLM Integration): Develop prompt engineering for Brief Generation and Chat.
+
+Dec 11 - Dec 13 (Frontend): Build React dashboard and "One-Page Brief" view.
+
+Dec 14: End-to-End testing and video recording.
+
+Dec 15: Round 2 Submission.
+
+6. Unique Innovations
+
+Explainable Priority Score (EPS): Unlike black-box AI, our scoring is transparent. Brokers can click "Why High Priority?" to see the exact math (e.g., "+20 pts for Premium > $100k", "+15 pts for 'Urgent' sentiment in recent email").
+
+"Risk Radar" Sentiment Analysis: The system autonomously scans negotiation threads to detect churn risk. If the tone is "Frustrated," the renewal is flagged as "At Risk" regardless of premium size.
+
+Hallucination-Free Citations: Every claim in the AI-generated brief includes a citation footnote (e.g., [Source: Email from Client, Nov 12]) that links directly to the original item in Outlook or CRM.
+
+7. Target Success Metrics
+
+Metric
+
+Target Goal
+
+Measurement Method
+
+Time Saved
+
+50% reduction
+
+Comparison of "Manual Prep" vs "Copilot Brief" duration.
+
+Accuracy
+
+100% Traceability
+
+Every insight links to a valid Source ID.
+
+Integration
+
+4+ Systems
+
+CRM, Outlook, Teams, and Calendar working simultaneously.
+
+Prioritization
+
+Grade A
+
+90% of high-priority renewals have explainable factors.
