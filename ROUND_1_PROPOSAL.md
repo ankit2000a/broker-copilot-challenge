@@ -28,37 +28,48 @@ A **"Connector-First" Broker Copilot**. Instead of creating a new database or in
 
 ---
 
-## 2. Proposed Architecture & Workflow
+### 2. Proposed Architecture & Workflow
 
 We utilize a **"Zero-Persistence" Passthrough Architecture**. Data is fetched, processed in memory, and presented in real-time without being stored in a secondary database or vector store.
 
 ### System Architecture
 
-**Layer 1: Data Sources**
-- CRM (Salesforce)
-- Email (Outlook)
-- Calendar (Teams)
+```text
+┌─────────────────────────────────────────────────┐
+│        Data Sources (Live Connectors)           │
+│ ┌──────────┐   ┌──────────┐    ┌──────────┐     │
+│ │    CRM   │   │   Email  │    │ Calendar │     │
+│ │Salesforce│   │ Outlook  │    │   Teams  │     │
+│ └─────┬────┘   └─────┬────┘    └─────┬────┘     │
+└───────┼──────────────┼───────────────┼──────────┘
+        │              │               │
+        └──────────────┼───────────────┘
+        ┌──────────────▼───────────────┐
+        │    Secure Connector Layer    │
+        │     (OAuth 2.0 / Auth0)      │
+        └──────────────┬───────────────┘
+                 JSON Signals
+        ┌──────────────▼───────────────┐
+        │     Orchestration Engine     │
+        │          (FastAPI)           │
+        └──────────────┬───────────────┘
+              Context + Metadata
+        ┌──────────────▼───────────────┐
+        │     Prioritization Logic     │
+        │       (EPS Algorithm)        │
+        └──────────────┬───────────────┘
+              Structured Prompt
+        ┌──────────────▼───────────────┐
+        │          LLM Layer           │
+        │       (Azure OpenAI)         │
+        └──────────────┬───────────────┘
+               Drafts & Briefs
+        ┌──────────────▼───────────────┐
+        │      Frontend Dashboard      │
+        │           (React)            │
+        └──────────────────────────────┘
 
-**Layer 2: Secure Connectors**
-- OAuth 2.0 / Auth0 authentication
-- Read-only API access
-
-**Layer 3: Orchestration Engine**
-- FastAPI backend
-- In-memory data aggregation
-
-**Layer 4: Business Logic**
-- Explainable Priority Score (EPS) calculation
-- LLM prompt generation
-
-**Layer 5: AI Processing**
-- Azure OpenAI (GPT-4o-mini)
-- Brief generation with source citations
-
-**Layer 6: Presentation**
-- React.js dashboard
-- Real-time updates
-
+```
 
 
 ### Workflow Steps
