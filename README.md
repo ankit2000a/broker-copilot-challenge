@@ -138,18 +138,6 @@ broker-copilot-challenge/
 - **Source Traceability:** 90%+ of answers with correct citations
 - **Usability:** 4/5+ broker satisfaction rating
 
-## Team
-
-[Add team member names and roles]
-
-## License
-
-[Add license information]
-
-## Contact
-
-For questions or feedback, please open an issue or contact [your email].
-
 ---
 
 **Last Updated:** November 21, 2025  
