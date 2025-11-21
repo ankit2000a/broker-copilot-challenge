@@ -164,13 +164,15 @@ We strictly adhere to the **"No Ingestion"** policy to ensure enterprise-grade s
 
 ## 5. Implementation Timeline (Round 2 Roadmap)
 
-Phase,Dates,Deliverables
-Connectors,Nov 24 - Nov 30,Build valid OAuth adapters for Microsoft Graph and Mock CRM
-Pipeline Logic,Dec 1 - Dec 5,Implement Explainable Priority Scoring (EPS) algorithm
-LLM Integration,Dec 6 - Dec 10,Develop prompt engineering for Brief Generation and Q&A Chat
-Frontend,Dec 11 - Dec 13,"Build React dashboard and ""One-Page Brief"" view"
-Testing,Dec 14,End-to-end testing and demo video recording
-Submission,Dec 15,Round 2 Final Submission
+
+| Phase | Dates | Deliverables |
+|-------|-------|-------------|
+| **Connectors** | Nov 24 - Nov 30 | Build valid OAuth adapters for Microsoft Graph and Mock CRM |
+| **Pipeline Logic** | Dec 1 - Dec 5 | Implement Explainable Priority Scoring (EPS) algorithm |
+| **LLM Integration** | Dec 6 - Dec 10 | Develop prompt engineering for Brief Generation and Q&A Chat |
+| **Frontend** | Dec 11 - Dec 13 | Build React dashboard and "One-Page Brief" view |
+| **Testing** | Dec 14 | End-to-end testing and demo video recording |
+| **Submission** | Dec 15 | Round 2 Final Submission |
 
 ---
 
@@ -186,11 +188,12 @@ Submission,Dec 15,Round 2 Final Submission
 - Click "Why High Priority?" to see exact calculation
 - Example:
 
+```text
   Total Score: 87/100
 ├─ Premium Risk (40%): 35/40 pts [Premium: $150K > $100K threshold]
 ├─ Time to Expiry (30%): 28/30 pts [14 days remaining, critical window]
 └─ Claims History (10%): 8/10 pts [2 claims in 12 months]
-
+```
 
 ---
 
@@ -201,9 +204,11 @@ Submission,Dec 15,Round 2 Final Submission
 **Our Solution:** Autonomous sentiment scanning of negotiation threads via NLP.
 
 **Example Alert:**
-
-⚠️ Risk Alert: Acme Corp Renewal Sentiment trend: Positive → Neutral → Negative Last email (Nov 18): Client mentioned "exploring other options"
-
+```text
+⚠️ Risk Alert: Acme Corp Renewal
+Sentiment trend: Positive → Neutral → Negative
+Last email (Nov 18): Client mentioned "exploring other options"
+```
 
 ---
 
